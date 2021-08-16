@@ -107,7 +107,7 @@ def normalize_raw_hic_sparse(raw_hic_data):
     Returns:
         A pandas DataFrame including KR-normalized HiC data
     '''
-    normalized_hic_data = raw_hic_data
+    normalized_hic_data = raw_hic_data.copy()
     normalized_hic_data['norm_value'] = normalized_hic_data['value']/(normalized_hic_data['norm_locus_chr1']*normalized_hic_data['norm_locus_chr2'])
     return(normalized_hic_data)
 
@@ -149,8 +149,8 @@ def filter_centromeres(df, chrom, row_or_col, df_centrom, filter_size, resol):
         A pandas DataFrame where centromeric and pericentromeric loci have been zeroed out
     '''
     chr_centrom_data = df_centrom[df_centrom['chrom'] == 'chr' + str(chrom)]
-    centrom_start = int(math.floor(float(chr_centrom_data['chromStart'])/resol)*resol)
-    centrom_end = int(math.ceil(float(chr_centrom_data['chromEnd'])/resol)*resol)
+    centrom_start = int((chr_centrom_data['chromStart']//resol)*resol)
+    centrom_end = int((chr_centrom_data['chromEnd']//resol)*resol)
     centrom_start = centrom_start - filter_size
     centrom_end = centrom_end + filter_size
     if (row_or_col == 'row'):
@@ -371,7 +371,72 @@ def plot_dense_hic_dataframe(df, chr1, chr2, plotname, hic_plots_dir):
     plt.savefig(hic_plots_dir+plotname, format='eps')
     plt.close()
 
-    
+
+def whole_genome_mean_std(nonzero_entries):
+    '''
+    Computes mean and standard deviation of nonzero_entries
+    Args:
+        nonzero_entries: (Numpy array) array f nonzero entries from all Hi-C matrices
+    Returns:
+        The mean and standard deviation of the input array
+    '''
+    mean = np.mean(nonzero_entries)
+    std = np.std(nonzero_entries)
+    return mean, std
+
+
+def z_score_hic_matrix(mean, std, chr_pairs, processed_hic_data_dir):
+    '''
+    Z-scores all Hi-C matrices for pairs of chromosomes in chr_pairs and pickles the result
+    Args:
+        mean: (float) mean for centering
+        std: (float) standard deviation for scaling
+        chr_pairs: (list) list of chromosome pairs
+        processed_hic_data_dir: (string) directory of processed Hi-C data
+    Returns:
+    '''
+    for pair in chr_pairs:
+        chr1, chr2 = pair
+        # Read in
+        hic_filename = processed_hic_data_dir+'hic_'+'chr'+str(chr1)+'_'+'chr'+str(chr2)+'_norm1_filter3'+'.pkl'
+        df = pickle.load(open(hic_filename, 'rb'))
+        # z-score matrix
+        df  = (df - mean)/std
+        # save new matrix
+        df.to_csv(processed_hic_data_dir+'hic_'+'chr'+str(chr1)+'_'+'chr'+str(chr2)+'_zscore.txt')
+
+
+def output_blacklist_locations(chr_pairs, processed_hic_data_dir):
+    '''
+    Output a file with locations that have been removed (these locations will have an observed value of 0) 
+    for each chromosome
+    Args:
+        chr_pairs: (list) list of chromosome pairs
+        processed_hic_data_dir: (string) directory of processed Hi-C data
+    Returns:
+    '''
+    # initialize empty dictionary
+    blacklist = defaultdict(list)
+    for pair in chr_pairs:
+        chr1, chr2 = pair
+        # read in
+        hic_filename = processed_hic_data_dir+'hic_'+'chr'+str(chr1)+'_'+'chr'+str(chr2)+'_norm1_filter3'+'.pkl'
+        df = pickle.load(open(hic_filename, 'rb'))
+        # find out which loci of chr2 (columns) have all zeros in them
+        zero_cols = df.columns[(df == 0).all(axis=0)]
+        blacklist[chr2].append(zero_cols)
+        # find out which loci of chr1 (rows) have all zeros in them
+        zero_rows = df.index[(df == 0).all(axis=1)]
+        blacklist[chr1].append(zero_rows)
+    # process the list
+    for chrom in blacklist.keys():
+        values_list = blacklist[chrom]
+        blacklist[chrom] = set(map(int, list(itertools.chain.from_iterable(values_list))))
+    # pickle this dictionary
+    f = open(processed_hic_data_dir+'blacklist.pickle', 'wb')
+    pickle.dump(blacklist, f)
+
+
 def parse_config(config_filename):
     '''
     Reads config file
@@ -403,6 +468,7 @@ def main():
     raw_hic_dir = config['HIC_DIR']
     genome_dir = config['GENOME_DIR']
     hic_plots_dir = config['HIC_PLOTS_DIR']
+    processed_hic_data_dir = config['PROCESSED_HIC_DATA_DIR']
     hic_celltype = config['HIC_CELLTYPE']
     resol_str = config['HIC_RESOLUTION_STR']
     resol = config['HIC_RESOLUTION']
@@ -419,6 +485,9 @@ def main():
     # We also load centromere information (used later)
     print('Load centromere information to be used later...')
     df_centrom = get_centromere_locations(genome_dir)
+    
+    # Record nonzero values over all Hi-C matrices
+    nonzero_entries = []
     
     # List all chromosome pairs and process interchromosomal HiC data for all pairs
     chr_pairs = list(itertools.combinations(chr_list, 2))
@@ -467,9 +536,28 @@ def main():
         # Filter out outliers
         print('Filter out outliers')
         df_transformed = filter_outliers(df_transformed)
-        # Plot HiC data after filtering out centromeres, repeats and outliers
+
+        # Plot and save to pickle HiC data after filtering out centromeres, repeats and outliers
         plotname = 'hic_'+'chr'+str(chr1)+'_'+'chr'+str(chr2)+'_norm1_filter3'+'.eps'
         plot_dense_hic_dataframe(df_transformed, chr1, chr2, plotname, hic_plots_dir)
+        picklename = processed_hic_data_dir+'hic_'+'chr'+str(chr1)+'_'+'chr'+str(chr2)+'_norm1_filter3'+'.pkl'
+        pickle.dump(df_transformed, open(picklename, 'wb'))
+        
+        # Record nonzero entries
+        data = df_transformed.as_matrix()
+        data_nonzero = data[np.nonzero(data)]
+        nonzero_entries.append(data_nonzero)
+
+    # Center and scale every Hi-C matrix by the mean and standard deviation across all matrices
+    print('Z-score Hi-C matrices using nonzero mean and standard deviation')
+    nonzero_entries = np.asarray(list(itertools.chain.from_iterable(nonzero_entries)))
+    np.savetxt(processed_hic_data_dir + 'whole_genome_nonzero.logtrans.txt', nonzero_entries)
+    mean, std = whole_genome_mean_std(nonzero_entries)
+    z_score_hic_matrix(mean, std, chr_pairs, processed_hic_data_dir)
+    
+    # Output a file with locations that have been removed
+    print('Output blacklisted loci file')
+    output_blacklist_locations(chr_pairs, processed_hic_data_dir)
     
 
 if __name__ == "__main__":
