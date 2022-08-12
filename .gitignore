@@ -1,0 +1,10 @@
+# Ignore all save and data files
+data
+save
+
+# Ignore old code
+code/old
+**/code/feedback_loop
+**/code/old
+
+
