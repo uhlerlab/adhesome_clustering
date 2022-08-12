@@ -1,0 +1,13 @@
+{
+  "HIC_DIR": "/home/louiscam/projects/gpcr/data/hic/",
+  "GENOME_DIR": "/home/louiscam/projects/gpcr/data/genome_data/",
+  "HIC_PLOTS_DIR": "/home/louiscam/projects/gpcr/save/hic_plots_dir/",
+  "PROCESSED_HIC_DATA_DIR": "/home/louiscam/projects/gpcr/save/processed_hic_data_dir/",
+  "SAVING_DIR": "/home/louiscam/projects/gpcr/save/figures/",
+  "HIC_CELLTYPE": "IMR90",
+  "HIC_RESOLUTION_STR": "250kb",
+  "HIC_RESOLUTION": 250000,
+  "HIC_QUALITY": "MAPQGE30",
+  "chrs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+  "CENTROMERE_FILTER_SIZE": 2000000
+}

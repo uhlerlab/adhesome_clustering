@@ -1,0 +1,7 @@
+{
+  "GENOME_DIR": "/home/louiscam/projects/gpcr/data/genome_data/",
+  "EPIGENOME_PEAKS_DIR": "/home/louiscam/projects/gpcr/data/regulatory_data/regulatory_data_GM12878/peaks/",
+  "EPIGENOME_RNASEQ_DIR": "/home/louiscam/projects/gpcr/data/regulatory_data/regulatory_data_GM12878/rnaseq/",
+  "PROCESSED_EPIGENOME_DIR": "/home/louiscam/projects/gpcr/save/processed_regulatory_marks/processed_epigenome_data_GM12878/",
+  "SAVING_DIR": "/home/louiscam/projects/gpcr/save/figures/"
+}
