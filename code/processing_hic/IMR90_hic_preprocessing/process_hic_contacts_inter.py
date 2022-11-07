@@ -526,11 +526,11 @@ def main():
         print('Log-transform HiC data')
         df_transformed = log_transform(df)
         
-#         # Filter out outliers
-#         print('Filter out outliers')
-#         df_transformed, ind_row, ind_col = filter_outliers(df_transformed)
-#         outliers_list = outliers_list+[f'chr_{chr1}_loc_{i*resol}' for i in ind_row]
-#         outliers_list = outliers_list+[f'chr_{chr2}_loc_{i*resol}' for i in ind_col]
+        # Filter out outliers
+        print('Filter out outliers')
+        df_transformed, ind_row, ind_col = filter_outliers(df_transformed)
+        outliers_list = outliers_list+[f'chr_{chr1}_loc_{i*resol}' for i in ind_row]
+        outliers_list = outliers_list+[f'chr_{chr2}_loc_{i*resol}' for i in ind_col]
 
         # Plot and save to pickle HiC data after filtering out centromeres, repeats and outliers
         plotname = 'hic_'+'chr'+str(chr1)+'_'+'chr'+str(chr2)+'_norm1_filter3'+'.eps'

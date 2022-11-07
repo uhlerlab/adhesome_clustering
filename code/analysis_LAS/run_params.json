@@ -1,0 +1,11 @@
+{
+  "HIC_FILT_DIR": "/home/louiscam/projects/gpcr/save/processed_hic_data_without_outliers/processed_hic_data_IMR90/final_BP250000_intraKR_interGWKR/",
+  "LAS_OUT_DIR": "/home/louiscam/projects/gpcr/save/LAS_results/IMR90/GWKR_contiguous_without_outliers/",
+  "GENOME_DIR": "/home/louiscam/projects/gpcr/data/genome_data/",
+  "NUM_PROC": 15,
+  "HIC_RESOLN": 250000,
+  "chrs" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+  "pvalue_threshold" : 0.999999999999999,
+  "max_submatrix_size" : 2000000,
+  "iter": 100
+}
