@@ -8,6 +8,8 @@ In the paper "Adhesome Receptor Clustering is Accompanied by the Co-localization
 * Cluster adhesome genes and their TFs to identify important interacting genomic regions
 * Validate our findings using genome-wide Fluorescence In Situ Hybridization (FISH) data
 
+![Alt text](fig1.pdf?raw=true "Title")
+
 The subdirectories contained in the code directory can be used to reproduce results and figures in the article. Data pre-processing steps are implemented in the following subdirectories:
 
 * processing1_adhesome: load and explore adhesome network data from [adhesome.org](http://adhesome.org/)
