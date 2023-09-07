@@ -6,11 +6,14 @@
   "EPIGENOME_DIR": "/home/louiscam/projects/gpcr/data/regulatory_data/regulatory_data_IMR90/",
   "PROCESSED_EPIGENOME_DIR": "/home/louiscam/projects/gpcr/save/processed_epigenome_data_dir/",
   "ADHESOME_DIR": "/home/louiscam/projects/gpcr/data/adhesome_data/",
+  "ARROWHEAD_DIR": "/home/louiscam/projects/gpcr/save/processed_hic_domains/arrowhead/",
   "SAVING_DIR": "/home/louiscam/projects/gpcr/save/figures/",
   "HIC_CELLTYPE": "IMR90",
   "HIC_RESOLUTION_STR": "250kb",
   "HIC_RESOLUTION": 250000,
   "HIC_QUALITY": "MAPQGE30",
+  "TAD_NORMALIZATION": "NONE",
+  "TAD_RESOLUTION": "5000",
   "chrs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
   "CENTROMERE_FILTER_SIZE": 2000000
 }
